@@ -45,6 +45,7 @@ const editNote = asyncHandler(async (req, res) => {
     },
     {
       new: true,
+      runValidators: true,
     },
   );
 
@@ -52,4 +53,18 @@ const editNote = asyncHandler(async (req, res) => {
   return res.json(new ApiResponse(200, note, "Updated Successfully "));
 });
 
-export { addNote, delNote, editNote };
+const fetchAllNotes = asyncHandler(async (req, res) => {
+  const notes = await Notes.find();
+  // if (!notes) {
+  //   throw new ApiError(
+  //     404,
+  //     "No Notes found... Add one real quick using the add option >_<",
+  //   );
+  // }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, notes, "Notes fetched successfully !!"));
+});
+
+export { addNote, delNote, editNote, fetchAllNotes };
