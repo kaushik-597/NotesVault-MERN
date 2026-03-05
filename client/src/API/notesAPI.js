@@ -26,4 +26,15 @@ const delNote = async (id) => {
   return data.data;
 };
 
-export { getNotes, delNote, addNote };
+const editNote = async (id, note) => {
+  const response = await fetch(`${BASE_URL}/edit/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(note),
+  });
+
+  const data = await response.json();
+  return data.data;
+};
+
+export { getNotes, delNote, addNote, editNote };
