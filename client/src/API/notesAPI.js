@@ -7,4 +7,23 @@ const getNotes = async () => {
   return data.data;
 };
 
-export { getNotes };
+const addNote = async (note) => {
+  const response = await fetch(`${BASE_URL}/add`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(note),
+  });
+
+  const data = await response.json();
+  return data.data;
+};
+
+const delNote = async (id) => {
+  const response = await fetch(`${BASE_URL}/del/${id}`, {
+    method: "DELETE",
+  });
+  const data = await response.json();
+  return data.data;
+};
+
+export { getNotes, delNote, addNote };
