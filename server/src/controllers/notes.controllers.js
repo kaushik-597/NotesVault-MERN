@@ -54,7 +54,7 @@ const editNote = asyncHandler(async (req, res) => {
 });
 
 const fetchAllNotes = asyncHandler(async (req, res) => {
-  const notes = await Notes.find();
+  const notes = await Notes.find().sort({ createdAt: -1 });
   // if (!notes) {
   //   throw new ApiError(
   //     404,

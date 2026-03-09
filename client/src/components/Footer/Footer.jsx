@@ -1,6 +1,13 @@
-function Footer() {
+const Footer = () => {
   return (
-    <div className="w-full bg-slate-400 shadow-lg shadow-black/20">Notes</div>
+    <footer className="mt-auto border-t border-slate-200 bg-slate-50 text-slate-500 py-6 sticky bottom-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 text-center text-sm">
+        <p>
+          &copy; {new Date().getFullYear()} Flow Notes. All rights reserved.
+        </p>
+      </div>
+    </footer>
   );
-}
+};
+
 export default Footer;
