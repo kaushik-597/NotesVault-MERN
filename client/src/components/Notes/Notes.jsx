@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit2, Trash2, Plus, X } from "lucide-react";
+import { Edit2, Trash2, Plus, X, Save } from "lucide-react";
 import { addNote, getNotes, delNote, editNote } from "../../API/notesAPI.js";
 
 const Notes = () => {
@@ -104,30 +104,52 @@ const Notes = () => {
               </div>
 
               <div className="px-5 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white/50">
-                <button
-                  className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
-                  aria-label="Edit note"
-                  onClick={() => {
-                    if (!isEditing) {
+                {isEditing ? (
+                  <>
+                    <button
+                      className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
+                      onClick={() => {
+                        if (
+                          newNote.title === note.title &&
+                          newNote.description === note.description
+                        ) {
+                          setEditingId(null);
+                          return;
+                        }
+                        edit(note._id, newNote);
+                      }}
+                    >
+                      <Save size={16} />
+                    </button>
+
+                    <button
+                      className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
+                      onClick={() => {
+                        setEditingId(null);
+                        setNewNote({
+                          title: "",
+                          description: "",
+                        });
+                      }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
+                    aria-label="Edit note"
+                    onClick={() => {
                       setEditingId(note._id);
                       setNewNote({
                         title: note.title,
                         description: note.description,
                       });
-                    } else {
-                      if (
-                        newNote.title === note.title &&
-                        newNote.description === note.description
-                      ) {
-                        setEditingId(null);
-                        return;
-                      }
-                      edit(note._id, newNote);
-                    }
-                  }}
-                >
-                  <Edit2 size={16} />
-                </button>
+                    }}
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                )}
 
                 <button
                   className="p-2.5 rounded-xl bg-white border border-slate-200 text-rose-500 shadow-sm hover:bg-rose-50 hover:border-rose-200 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-rose-200 focus:outline-none cursor-pointer"
