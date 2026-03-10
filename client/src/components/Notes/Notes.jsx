@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
-import { addNote, getNotes } from "../../API/notesAPI.js";
+import { addNote, getNotes, delNote, editNote } from "../../API/notesAPI.js";
 
 const Notes = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -9,11 +9,11 @@ const Notes = () => {
     title: "",
     description: "",
   });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getNotes();
-
       setNotes(data);
     };
 
@@ -29,7 +29,22 @@ const Notes = () => {
     });
   };
 
-  const delNote = () => {};
+  const del = async (id) => {
+    await delNote(id);
+    setNotes((prev) => prev.filter((note) => note._id !== id));
+  };
+
+  const edit = async (id, note) => {
+    const editedNote = await editNote(id, note);
+    setNotes((prev) =>
+      prev.map((note) => (note._id === id ? editedNote : note)),
+    );
+    setEditingId(null);
+    setNewNote({
+      title: "",
+      description: "",
+    });
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 relative min-h-screen">
@@ -55,40 +70,76 @@ const Notes = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {notes.map((note) => (
-          <div
-            key={note._id}
-            className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-md shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-300/60 hover:scale-105 transition-all duration-300 ease-out"
-          >
-            <div className="bg-slate-800 px-5 py-4 flex items-center justify-between border-b border-slate-700">
-              <h3 className="text-slate-100 font-medium tracking-wide truncate pr-4">
-                {note.title}
-              </h3>
-            </div>
+        {notes.map((note) => {
+          const isEditing = editingId === note._id;
+          return (
+            <div
+              key={note._id}
+              className="group flex flex-col bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-md shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-300/60 hover:scale-105 transition-all duration-300 ease-out"
+            >
+              <div className="bg-slate-800 px-5 py-4 flex items-center justify-between border-b border-slate-700">
+                <input
+                  className="text-slate-100 font-medium tracking-wide truncate pr-4 w-full"
+                  value={isEditing ? newNote.title : note.title}
+                  disabled={!isEditing}
+                  onChange={(e) => {
+                    setNewNote((prev) => {
+                      return { ...prev, title: e.target.value };
+                    });
+                  }}
+                />
+              </div>
 
-            <div className="px-5 py-5 flex-grow">
-              <p className="text-slate-600 leading-relaxed text-sm">
-                {note.description}
-              </p>
-            </div>
+              <div className="px-5 py-5 flex-grow">
+                <textarea
+                  className="text-slate-600 leading-relaxed text-sm w-full resize-none"
+                  value={isEditing ? newNote.description : note.description}
+                  disabled={!isEditing}
+                  onChange={(e) => {
+                    setNewNote((prev) => {
+                      return { ...prev, description: e.target.value };
+                    });
+                  }}
+                ></textarea>
+              </div>
 
-            <div className="px-5 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white/50">
-              <button
-                className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
-                aria-label="Edit note"
-              >
-                <Edit2 size={16} />
-              </button>
+              <div className="px-5 py-4 border-t border-slate-100 flex justify-end gap-3 bg-white/50">
+                <button
+                  className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
+                  aria-label="Edit note"
+                  onClick={() => {
+                    if (!isEditing) {
+                      setEditingId(note._id);
+                      setNewNote({
+                        title: note.title,
+                        description: note.description,
+                      });
+                    } else {
+                      if (
+                        newNote.title === note.title &&
+                        newNote.description === note.description
+                      ) {
+                        setEditingId(null);
+                        return;
+                      }
+                      edit(note._id, newNote);
+                    }
+                  }}
+                >
+                  <Edit2 size={16} />
+                </button>
 
-              <button
-                className="p-2.5 rounded-xl bg-white border border-slate-200 text-rose-500 shadow-sm hover:bg-rose-50 hover:border-rose-200 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-rose-200 focus:outline-none cursor-pointer"
-                aria-label="Delete note"
-              >
-                <Trash2 size={16} />
-              </button>
+                <button
+                  className="p-2.5 rounded-xl bg-white border border-slate-200 text-rose-500 shadow-sm hover:bg-rose-50 hover:border-rose-200 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-rose-200 focus:outline-none cursor-pointer"
+                  aria-label="Delete note"
+                  onClick={() => del(note._id)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {isModalOpen && (
@@ -155,7 +206,13 @@ const Notes = () => {
 
             <div className="px-6 py-4 bg-slate-100/50 border-t border-slate-200 flex justify-end gap-3">
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setNewNote({
+                    title: "",
+                    description: "",
+                  });
+                }}
                 className="px-5 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-colors cursor-pointer"
               >
                 Cancel
