@@ -72,6 +72,9 @@ const Notes = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {notes.map((note) => {
           const isEditing = editingId === note._id;
+          const titleEmpty = isEditing && !newNote.title.trim();
+          const descEmpty = isEditing && !newNote.description.trim();
+          const isInvalid = titleEmpty || descEmpty;
           return (
             <div
               key={note._id}
@@ -107,7 +110,8 @@ const Notes = () => {
                 {isEditing ? (
                   <>
                     <button
-                      className="p-2.5 rounded-xl bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer"
+                      disabled={isInvalid}
+                      className={`p-2.5 rounded-xl ${isInvalid ? `bg-slate-800/60 cursor-not-allowed text-white` : `bg-slate-800 text-white shadow-sm hover:bg-slate-700 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-slate-400 focus:outline-none cursor-pointer`} `}
                       onClick={() => {
                         if (
                           newNote.title === note.title &&
