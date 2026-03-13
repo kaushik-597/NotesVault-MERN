@@ -16,7 +16,7 @@ const register = asyncHandler(async (req, res) => {
     password,
   });
 
-  const registeredUser = User.findById(user._id).select("-password");
+  const registeredUser = await User.findById(user._id).select("-password");
 
   // if (!registeredUser)
   //   throw new ApiError(500, "Something went wrong while registering the user");
