@@ -6,19 +6,25 @@ import { User } from "../models/user.models.js";
 const register = asyncHandler(async (req, res) => {
   const { fullName, email, password } = req.body;
 
-  // if ([fullName, email, password]?.forEach((a) => !a)) {
-  // }
-
-  if (!fullName && !email && !password) {
-    throw new ApiError();
+  if ([fullName, email, password].some((field) => !field)) {
+    throw new ApiError(400, "All fields are required +_-");
   }
 
-  const user = User.create();
+  const user = await User.create({
+    fullName,
+    email,
+    password,
+  });
+
+  const registeredUser = User.findById(user._id).select("-password");
+
+  // if (!registeredUser)
+  //   throw new ApiError(500, "Something went wrong while registering the user");
 
   res
-    .status(200)
+    .status(201)
     .json(
-      new ApiResponse(200, { fullName, email, password }, "Data coming XD"),
+      new ApiResponse(201, registeredUser, "User registered successfully :)"),
     );
 });
 

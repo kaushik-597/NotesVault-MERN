@@ -5,4 +5,4 @@ const router = Router();
 
 router.route("/register").post(register);
 
-export default register;
+export default router;
