@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import notesRoute from "./routes/notes.routes.js";
+import authRoute from "./routes/auth.routes.js";
 
 const app = express();
 dotenv.config("./.env");
@@ -18,5 +19,6 @@ app.use(express.urlencoded({ limit: "16kb", extended: true }));
 app.use(express.static("public"));
 
 app.use("/api/v1/notes", notesRoute);
+app.use("/api/v1/auth", authRoute);
 
 export { app };
